@@ -100,11 +100,119 @@ const Redo = styled.div`
 `;
 
 
-function WeatherApp() {
+const WeatherApp = () => {
+  console.log("---invoke function component---");
+
+  const [currentWeather, setCurrentWeather] = useState({
+    observationTime: new Date(),
+    location: "",
+    description: "",
+    temperature: 0,
+    windSpeed: 0,
+    humidity: 0,
+    tempmax: 0,
+    tempmin: 0
+  });
+
+  const fetchData = useCallback(()=> {
+    const fetchingData = async() => {
+      const [currentWeather, forecast]=await Promise.all([
+        fetchCurrentWeather(),
+        fetchForecast()
+      ])
+      setCurrentWeather({
+        ...currentWeather,
+        ...forecast
+      })
+    }
+    fetchingData()
+  },[])
+  
+  useEffect(() => {
+    console.log("execute useEffect");
+    fetchData()
+  }, [fetchData]);
+
+  const fetchCurrentWeather = () => {
+    return fetch(
+      "https://api.openweathermap.org/data/2.5/weather?id=5391959&APPID=504cc437ea5aa8f957d6bcf4c6799831"
+    )
+      .then(res => res.json())
+      .then(data => {
+        let date = new Date();
+        const locationData = {
+          description: data.weather[0].main,
+          observationTime: date.toISOString(data.timezone),
+          location: data.name,
+          windSpeed: data.wind.speed,
+          humidity: data.main.humidity,
+          temperature: data.main.temp
+        };
+        console.log("Promise for current", data);
+          return {
+            ...locationData
+          };
+      });
+  };
+
+  const fetchForecast = () => {
+    return fetch(
+      "https://api.openweathermap.org/data/2.5/onecall?lat=37.77&lon=-122.42&exclude=hourly,current,minutely&appid=504cc437ea5aa8f957d6bcf4c6799831"
+    )
+      .then(res => res.json())
+      .then(data => {
+        const forecastData = {
+          tempmax: data.daily[0].temp.max,
+          tempmin: data.daily[0].temp.min
+        };
+        console.log(data);
+        
+          return {
+            ...forecastData
+          };
+
+      });
+  };
+
   return (
-    <div className="WeatherApp">
-     
-    </div>
+    <Container>
+      {console.log("render")}
+      <WeatherCard>
+        <Location>{currentWeather.location}</Location>
+        <Description>
+          {currentWeather.description}{" "}
+          {Math.round(((currentWeather.tempmin - 273.15) * 9) / 5 + 32)}{" "}
+          {Math.round(((currentWeather.tempmax - 273.15) * 9) / 5 + 32)}
+        </Description>
+        <CurrentWeather>
+          <Temperature>
+            {Math.round(
+              ((currentWeather.temperature - 273.15) * 9) / 5 + 32,
+              -1
+            )}{" "}
+            <Celsius>°F</Celsius>
+          </Temperature>
+          <WeatherIcon />
+        </CurrentWeather>
+        <AirFlow>
+          <AirFlowIcon />
+          {currentWeather.windSpeed} m/s
+        </AirFlow>
+        <Rain>
+          <RainIcon />
+          {currentWeather.humidity} %
+        </Rain>
+
+        <Redo
+          onClick={fetchData}>
+          Obtained data at: {" "}
+          {new Intl.DateTimeFormat("en-US").format(
+            new Date(currentWeather.observationTime)
+          )}
+          <RedoIcon />
+        </Redo>
+      </WeatherCard>
+    </Container>
   );
 }
 
