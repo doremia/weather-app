@@ -105,6 +105,7 @@ const WeatherApp = () => {
 
   const [currentWeather, setCurrentWeather] = useState({
     observationTime: new Date(),
+    weatherId:0,
     location: "",
     description: "",
     temperature: 0,
@@ -141,6 +142,7 @@ const WeatherApp = () => {
       .then(data => {
         let date = new Date();
         const locationData = {
+          weatherId:data.weather[0].id,
           description: data.weather[0].main,
           observationTime: date.toISOString(data.timezone),
           location: data.name,
@@ -192,7 +194,10 @@ const WeatherApp = () => {
             )}{" "}
             <Celsius>°F</Celsius>
           </Temperature>
-          <WeatherIcon />
+          <WeatherIcon 
+            currentWeatherId={currentWeather.id} 
+            moment="night"
+          />
         </CurrentWeather>
         <AirFlow>
           <AirFlowIcon />
@@ -207,7 +212,7 @@ const WeatherApp = () => {
           onClick={fetchData}>
           Obtained data at: {" "}
           {new Intl.DateTimeFormat("en-US").format(
-            new Date(currentWeather.observationTime)
+            new Date(currentWeather.observationTime) //show hour:minute:second
           )}
           <RedoIcon />
         </Redo>
