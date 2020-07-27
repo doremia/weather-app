@@ -1,23 +1,23 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import styled from "@emotion/styled"
 
 import { ReactComponent as CloudyIcon } from './images/day-cloudy.svg'
 import { ReactComponent as DayThunderstorm } from './images/day-thunderstorm.svg';
 import { ReactComponent as DayClear } from './images/day-clear.svg';
-import { ReactComponent as DayCloudyFog } from './images/day-cloudy-fog.svg';
+//import { ReactComponent as DayCloudyFog } from './images/day-cloudy-fog.svg';
 import { ReactComponent as DayCloudy } from './images/day-cloudy.svg';
 import { ReactComponent as DayFog } from './images/day-fog.svg';
 import { ReactComponent as DayPartiallyClearWithRain } from './images/day-partially-clear-with-rain.svg';
 import { ReactComponent as DaySnowing } from './images/day-snowing.svg';
 import { ReactComponent as NightThunderstorm } from './images/night-thunderstorm.svg';
 import { ReactComponent as NightClear } from './images/night-clear.svg';
-import { ReactComponent as NightCloudyFog } from './images/night-cloudy-fog.svg';
+//import { ReactComponent as NightCloudyFog } from './images/night-cloudy-fog.svg';
 import { ReactComponent as NightCloudy } from './images/night-cloudy.svg';
 import { ReactComponent as NightFog } from './images/night-fog.svg';
 import { ReactComponent as NightPartiallyClearWithRain } from './images/night-partially-clear-with-rain.svg';
 import { ReactComponent as NightSnowing } from './images/night-snowing.svg';
 
-const IconContainer = styled(CloudyIcon)`
+const IconContainer = styled.div`
   flex-basis: 30%;
   svg {
     max-height: 110px;
@@ -33,6 +33,7 @@ const weatherTypes = {
     isClear:[800],
     isClouds:[801,802,803,804],
 } // weather.id
+
 const weatherIcons = {
   day: {
     isThunderstorm: <DayThunderstorm />,
@@ -54,25 +55,24 @@ const weatherIcons = {
 
 const currentWeatherId = 800
 
-const weatherId2Type = (weatherId) => {
-    return Object.entries(weatherTypes).reduce(
-        (currentWeatherType, [weatherType, weatherIds]) => {
-            if (weatherIds.includes(Number(weatherId))) {
-                return weatherType
-            } else return currentWeatherType
-        }, ''
-    )
-}
-
-console.log(weatherId2Type(currentWeatherId))
 
 const WeatherIcon = ({ currentWeatherId, moment }) => {
     const [currentWeatherIcon, setCurrentWeatherIcon] = useState("isClear")
+    useEffect( () => {
+      const weatherId2Type = (weatherId) => 
+        Object.entries(weatherTypes).reduce(
+          (currentWeatherType, [weatherType, weatherIds]) => 
+            weatherIds.includes(Number(weatherId))
+            ? weatherType
+            : currentWeatherType,
+          ''
+        )
+      const currentWeatherIcon = weatherId2Type(currentWeatherId)
+      setCurrentWeatherIcon(currentWeatherIcon)
+    }, [currentWeatherId])
   return (
     <IconContainer> 
-    { weatherIcons[moment][currentWeatherIcon] }
-      <CloudyIcon/>
-    
+    { weatherIcons[moment][currentWeatherIcon]}    
     </IconContainer>
   )
 }

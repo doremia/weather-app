@@ -195,7 +195,7 @@ const WeatherApp = () => {
             <Celsius>°F</Celsius>
           </Temperature>
           <WeatherIcon 
-            currentWeatherId={currentWeather.id} 
+            currentWeatherId={currentWeather.weatherId} 
             moment="night"
           />
         </CurrentWeather>
